@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: {{ word.word }} - Learning Journey</title>
+    <style>
+        /* Base styles for the entire application */
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #7db0de;
+            --light-color: #e9f0f7;
+            --dark-color: #333;
+            --success-color: #5cb85c;
+            --warning-color: #f0ad4e;
+            --danger-color: #d9534f;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        /* Header styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .back-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--secondary-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        /* Journey progress bar */
+        .journey-progress-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .journey-progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .journey-progress-title {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .journey-progress-percentage {
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        .progress-bar-container {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--success-color));
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .quiz-word {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .quiz-instructions {
+            color: #777;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Quiz container styles */
+        .quiz-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* Question styles */
+        .question-container {
+            margin-bottom: 40px;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+
+        /* Options styles */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option:hover {
+            background-color: var(--light-color);
+            border-color: var(--accent-color);
+        }
+
+        .option.selected {
+            background-color: var(--light-color);
+            border-color: var(--accent-color);
+        }
+
+        .option.correct {
+            background-color: rgba(92, 184, 92, 0.2);
+            border-color: var(--success-color);
+        }
+
+        .option.incorrect {
+            background-color: rgba(217, 83, 79, 0.2);
+            border-color: var(--danger-color);
+        }
+
+        .option-letter {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            margin-right: 15px;
+            font-weight: 500;
+        }
+
+        .option.correct .option-letter {
+            background-color: var(--success-color);
+        }
+
+        .option.incorrect .option-letter {
+            background-color: var(--danger-color);
+        }
+
+        /* Feedback styles */
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .feedback.visible {
+            opacity: 1;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .feedback.correct {
+            background-color: rgba(92, 184, 92, 0.2);
+            color: var(--success-color);
+        }
+
+        .feedback.incorrect {
+            background-color: rgba(217, 83, 79, 0.2);
+            color: var(--danger-color);
+        }
+
+        /* Navigation button styles */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: #4cae4c;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #c9302c;
+        }
+
+        .btn-disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-hidden {
+            visibility: hidden;
+        }
+
+        /* Results section styles */
+        .results-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .results-container.visible {
+            display: block;
+        }
+
+        .results-header {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .results-score {
+            font-size: 3rem;
+            margin: 20px 0;
+            color: var(--secondary-color);
+        }
+
+        .mastery-change {
+            background-color: var(--light-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .journey-message {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .journey-message.success {
+            background-color: rgba(92, 184, 92, 0.2);
+            color: var(--success-color);
+        }
+
+        .journey-message.failure {
+            background-color: rgba(217, 83, 79, 0.2);
+            color: var(--danger-color);
+        }
+
+        .mastery-stars {
+            display: inline-block;
+            color: var(--warning-color);
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            margin: 10px 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{{ url_for('index') }}" class="back-link">
+            ← Exit Learning Journey
+        </a>
+        <h1>Learning Journey</h1>
+    </header>
+
+    <main>
+        <!-- Journey Progress Bar -->
+        <section class="journey-progress-container">
+            <div class="journey-progress-info">
+                <span class="journey-progress-title">Learning Progress</span>
+                <span class="journey-progress-percentage">{{ progress_percentage|round }}%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: {{ progress_percentage }}%;"></div>
+            </div>
+        </section>
+
+        <section class="quiz-header">
+            <h2 class="quiz-word">{{ word.word }}</h2>
+            <p class="quiz-instructions">Test your knowledge of this word by answering the questions below. You need to get all questions correct to advance in your learning journey.</p>
+        </section>
+
+        <section class="quiz-container" id="quizContainer">
+            <!-- Questions will be dynamically rendered here -->
+        </section>
+
+        <section class="results-container" id="resultsContainer">
+            <h2 class="results-header">Quiz Results</h2>
+            <p>You've completed the quiz for <strong>{{ word.word }}</strong>!</p>
+            
+            <div class="results-score" id="resultsScore">0/0</div>
+            
+            <div class="mastery-change">
+                <p>Your mastery of this word has been updated:</p>
+                <div class="mastery-stars" id="masteryStars">☆☆☆☆☆</div>
+                <p id="masteryText">Mastery: 0/5</p>
+            </div>
+
+            <div id="journeyMessageContainer" class="journey-message">
+                <!-- Will be filled dynamically based on quiz results -->
+            </div>
+
+            <div class="action-buttons">
+                <a href="{{ url_for('index') }}" class="btn btn-danger">Exit Journey</a>
+                <a href="{{ url_for('journey_learn', word_key=word_key) }}" class="btn btn-secondary">Return to Learning</a>
+                <button class="btn btn-success" id="continueJourneyBtn">Continue Journey</button>
+                <button class="btn btn-primary" id="retakeQuizBtn">Retake Quiz</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quiz data from Flask
+            const wordKey = "{{ word_key }}";
+            const questions = {{ quiz_questions|tojson }};
+            
+            // Quiz state
+            let currentQuestionIndex = 0;
+            let userAnswers = [];
+            let correctAnswers = 0;
+            
+            // DOM elements
+            const quizContainer = document.getElementById('quizContainer');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsScore = document.getElementById('resultsScore');
+            const masteryStars = document.getElementById('masteryStars');
+            const masteryText = document.getElementById('masteryText');
+            const retakeQuizBtn = document.getElementById('retakeQuizBtn');
+            const continueJourneyBtn = document.getElementById('continueJourneyBtn');
+            const journeyMessageContainer = document.getElementById('journeyMessageContainer');
+            
+            // Initialize the quiz
+            function initQuiz() {
+                quizContainer.innerHTML = '';
+                userAnswers = [];
+                correctAnswers = 0;
+                currentQuestionIndex = 0;
+                
+                // Hide results, show quiz
+                resultsContainer.classList.remove('visible');
+                quizContainer.style.display = 'block';
+                
+                // Render the first question
+                renderCurrentQuestion();
+            }
+            
+            // Render the current question
+            function renderCurrentQuestion() {
+                const question = questions[currentQuestionIndex];
+                const questionElement = document.createElement('div');
+                questionElement.className = 'question-container';
+                questionElement.id = `question-${currentQuestionIndex}`;
+                
+                questionElement.innerHTML = `
+                    <h3 class="question-text">${question.question}</h3>
+                    <div class="options-container" id="options-${currentQuestionIndex}">
+                        ${question.options.map((option, index) => `
+                            <div class="option" data-index="${index}">
+                                <span class="option-letter">${String.fromCharCode(65 + index)}</span>
+                                ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="feedback" id="feedback-${currentQuestionIndex}"></div>
+                    <div class="nav-buttons">
+                        <button class="btn ${currentQuestionIndex === 0 ? 'btn-hidden' : 'btn-secondary'}" 
+                                id="prevBtn-${currentQuestionIndex}"
+                                ${currentQuestionIndex === 0 ? 'disabled' : ''}>
+                            ← Previous
+                        </button>
+                        <button class="btn btn-primary btn-disabled" id="nextBtn-${currentQuestionIndex}">
+                            ${currentQuestionIndex === questions.length - 1 ? 'Finish Quiz' : 'Next Question →'}
+                        </button>
+                    </div>
+                `;
+                
+                quizContainer.appendChild(questionElement);
+                
+                // Add event listeners to options
+                const optionsContainer = document.getElementById(`options-${currentQuestionIndex}`);
+                const options = optionsContainer.querySelectorAll('.option');
+                
+                options.forEach(option => {
+                    option.addEventListener('click', function() {
+                        selectOption(currentQuestionIndex, parseInt(this.dataset.index));
+                    });
+                });
+                
+                // Add event listeners to navigation buttons
+                const prevBtn = document.getElementById(`prevBtn-${currentQuestionIndex}`);
+                const nextBtn = document.getElementById(`nextBtn-${currentQuestionIndex}`);
+                
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', goToPreviousQuestion);
+                }
+                
+                nextBtn.addEventListener('click', function() {
+                    if (currentQuestionIndex === questions.length - 1) {
+                        finishQuiz();
+                    } else {
+                        goToNextQuestion();
+                    }
+                });
+            }
+            
+            // Select an option
+            function selectOption(questionIndex, optionIndex) {
+                const question = questions[questionIndex];
+                const optionsContainer = document.getElementById(`options-${questionIndex}`);
+                const options = optionsContainer.querySelectorAll('.option');
+                const feedback = document.getElementById(`feedback-${questionIndex}`);
+                const nextBtn = document.getElementById(`nextBtn-${questionIndex}`);
+                
+                // Clear previous selections
+                options.forEach(opt => {
+                    opt.classList.remove('selected', 'correct', 'incorrect');
+                });
+                
+                // Select the clicked option
+                const selectedOption = options[optionIndex];
+                selectedOption.classList.add('selected');
+                
+                // Check if the answer is correct
+                const isCorrect = optionIndex === question.correct_answer;
+                
+                // Apply appropriate class to the selected option
+                selectedOption.classList.add(isCorrect ? 'correct' : 'incorrect');
+                
+                // If the answer is wrong, highlight the correct answer
+                if (!isCorrect) {
+                    options[question.correct_answer].classList.add('correct');
+                }
+                
+                // Show feedback
+                feedback.textContent = isCorrect 
+                    ? "Correct! Great job!" 
+                    : `Incorrect. The correct answer is ${String.fromCharCode(65 + question.correct_answer)}.`;
+                feedback.className = `feedback visible ${isCorrect ? 'correct' : 'incorrect'}`;
+                
+                // Enable the next button
+                nextBtn.classList.remove('btn-disabled');
+                
+                // Store the user's answer
+                userAnswers[questionIndex] = {
+                    questionIndex: questionIndex,
+                    selectedOption: optionIndex,
+                    isCorrect: isCorrect
+                };
+                
+                // Update the correct answers count
+                correctAnswers = userAnswers.filter(answer => answer && answer.isCorrect).length;
+            }
+            
+            // Go to the next question
+            function goToNextQuestion() {
+                // Hide current question
+                document.getElementById(`question-${currentQuestionIndex}`).classList.add('hidden');
+                
+                // Move to the next question
+                currentQuestionIndex++;
+                
+                // If the next question hasn't been rendered yet, render it
+                if (!document.getElementById(`question-${currentQuestionIndex}`)) {
+                    renderCurrentQuestion();
+                } else {
+                    // Otherwise, just show it
+                    document.getElementById(`question-${currentQuestionIndex}`).classList.remove('hidden');
+                }
+            }
+            
+            // Go to the previous question
+            function goToPreviousQuestion() {
+                // Hide current question
+                document.getElementById(`question-${currentQuestionIndex}`).classList.add('hidden');
+                
+                // Move to the previous question
+                currentQuestionIndex--;
+                
+                // Show the previous question
+                document.getElementById(`question-${currentQuestionIndex}`).classList.remove('hidden');
+            }
+            
+            // Finish the quiz and show results
+            function finishQuiz() {
+                // Calculate score
+                const score = userAnswers.filter(answer => answer && answer.isCorrect).length;
+                const totalQuestions = questions.length;
+                const allCorrect = score === totalQuestions;
+                
+                // Update the results UI
+                resultsScore.textContent = `${score}/${totalQuestions}`;
+                
+                // Add a message based on whether all answers were correct
+                if (allCorrect) {
+                    journeyMessageContainer.textContent = "Great job! You answered all questions correctly. You can continue to the next word in your journey.";
+                    journeyMessageContainer.className = "journey-message success";
+                } else {
+                    journeyMessageContainer.textContent = "You need to answer all questions correctly to continue. Please review and try again.";
+                    journeyMessageContainer.className = "journey-message failure";
+                }
+                
+                // Hide the quiz and show the results
+                quizContainer.style.display = 'none';
+                resultsContainer.classList.add('visible');
+                
+                // Update mastery level on the server
+                updateMastery(score, totalQuestions);
+            }
+            
+            // Update mastery level on the server
+            function updateMastery(correctAnswers, totalQuestions) {
+                fetch('/update_mastery', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        word_key: wordKey,
+                        correct_answers: correctAnswers,
+                        total_questions: totalQuestions
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the mastery stars display
+                        updateMasteryDisplay(data.new_mastery);
+                    } else {
+                        console.error('Error updating mastery:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating mastery:', error);
+                });
+            }
+            
+            // Update the mastery stars display
+            function updateMasteryDisplay(mastery) {
+                // Update the stars
+                let stars = '';
+                for (let i = 0; i < 5; i++) {
+                    stars += i < mastery ? '★' : '☆';
+                }
+                masteryStars.textContent = stars;
+                
+                // Update the text
+                masteryText.textContent = `Mastery: ${mastery.toFixed(1)}/5`;
+            }
+            
+            // Continue journey - sends the quiz result to the server
+            continueJourneyBtn.addEventListener('click', function() {
+                const allCorrect = correctAnswers === questions.length;
+                
+                // Send POST request to journey/next endpoint
+                fetch('/journey/next', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        word_key: wordKey,
+                        direction: 'from_quiz',
+                        quiz_passed: allCorrect
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.redirect) {
+                        // Redirect to the next step in the journey
+                        window.location.href = data.redirect;
+                    } else {
+                        console.error('Error continuing journey:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+            
+            // Retake the quiz
+            retakeQuizBtn.addEventListener('click', initQuiz);
+            
+            // Initialize the quiz when the page loads
+            initQuiz();
+        });
+    </script>
+</body>
+</html>

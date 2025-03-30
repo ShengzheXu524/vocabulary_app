@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ word.word }} - Learning Journey</title>
+    <style>
+        /* Base styles for the entire application */
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #7db0de;
+            --light-color: #e9f0f7;
+            --dark-color: #333;
+            --success-color: #5cb85c;
+            --warning-color: #f0ad4e;
+            --danger-color: #d9534f;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        /* Header styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .back-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--secondary-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        /* Journey progress bar */
+        .journey-progress-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .journey-progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .journey-progress-title {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .journey-progress-percentage {
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        .progress-bar-container {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--success-color));
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        /* Word card styles */
+        .word-detail-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+            position: relative;
+            perspective: 1000px; /* For card flip effect */
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card-front, .card-back {
+            padding: 30px;
+            backface-visibility: hidden;
+            min-height: 400px;
+        }
+
+        .card-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotateY(180deg);
+            background-color: var(--light-color);
+        }
+
+        .flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .word-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .word-title-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .word-title {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .part-of-speech {
+            font-style: italic;
+            color: #777;
+            font-size: 1.1rem;
+        }
+
+        .mastery-container {
+            text-align: right;
+        }
+
+        .mastery-stars {
+            display: inline-block;
+            color: var(--warning-color);
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+        }
+
+        .mastery-text {
+            display: block;
+            font-size: 0.9rem;
+            text-align: right;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .word-content {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .definition, .example, .memory-tip {
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .example {
+            font-style: italic;
+            border-left: 3px solid var(--accent-color);
+            padding-left: 15px;
+        }
+
+        .memory-tip {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 6px;
+        }
+
+        .memory-tip-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: #4cae4c;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #c9302c;
+        }
+
+        .btn-flip {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--light-color);
+            color: var(--primary-color);
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+
+        .btn-flip:hover {
+            background-color: #e5e5e5;
+        }
+
+        /* Last studied indicator */
+        .last-studied {
+            font-size: 0.9rem;
+            margin-top: 20px;
+            color: #999;
+            text-align: center;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .word-header {
+                flex-direction: column;
+            }
+
+            .mastery-container {
+                text-align: left;
+                margin-top: 10px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{{ url_for('index') }}" class="back-link">
+            ← Exit Learning Journey
+        </a>
+        <h1>Learning Journey</h1>
+    </header>
+
+    <main>
+        <!-- Journey Progress Bar -->
+        <section class="journey-progress-container">
+            <div class="journey-progress-info">
+                <span class="journey-progress-title">Learning Progress</span>
+                <span class="journey-progress-percentage">{{ progress_percentage|round }}%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: {{ progress_percentage }}%;"></div>
+            </div>
+        </section>
+
+        <section class="word-detail-card" id="wordCard">
+            <div class="card-inner">
+                <div class="card-front">
+                    <div class="word-header">
+                        <div class="word-title-container">
+                            <h2 class="word-title">{{ word.word }}</h2>
+                            <span class="part-of-speech">{{ word.part_of_speech }}</span>
+                        </div>
+                        <div class="mastery-container">
+                            <div class="mastery-stars">
+                                {% for i in range(5) %}
+                                    {% if i < mastery %}
+                                        ★
+                                    {% else %}
+                                        ☆
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="mastery-text">Mastery: {{ mastery|round(1) }}/5</span>
+                        </div>
+                    </div>
+
+                    <div class="word-content">
+                        <h3 class="section-title">Definition</h3>
+                        <p class="definition">{{ word.definition }}</p>
+
+                        <h3 class="section-title">Example</h3>
+                        <p class="example">{{ word.example }}</p>
+                    </div>
+
+                    <button class="btn btn-flip" id="flipToBack">Show Memory Tip →</button>
+                </div>
+
+                <div class="card-back">
+                    <div class="word-header">
+                        <div class="word-title-container">
+                            <h2 class="word-title">{{ word.word }}</h2>
+                            <span class="part-of-speech">{{ word.part_of_speech }}</span>
+                        </div>
+                    </div>
+
+                    <div class="memory-tip">
+                        <div class="memory-tip-title">Memory Tip</div>
+                        <p>{{ word.memory_tip }}</p>
+                    </div>
+
+                    <p>Practice using this word in sentences of your own. Try to recall the definition and example when you encounter this word in your reading.</p>
+
+                    <button class="btn btn-flip" id="flipToFront">← Back to Definition</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="action-buttons">
+            <a href="{{ url_for('index') }}" class="btn btn-danger">Exit Journey</a>
+            <button id="startQuizBtn" class="btn btn-success">Start Quiz</button>
+        </div>
+
+        <div class="last-studied">
+            {% if last_studied %}
+                Last studied: {{ last_studied }}
+            {% else %}
+                First time studying this word
+            {% endif %}
+        </div>
+    </main>
+
+    <footer>
+        <p>Vocabulary Builder App &copy; 2025 - Master your English vocabulary one word at a time</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const wordCard = document.getElementById('wordCard');
+            const flipToBackBtn = document.getElementById('flipToBack');
+            const flipToFrontBtn = document.getElementById('flipToFront');
+            const startQuizBtn = document.getElementById('startQuizBtn');
+
+            // Function to flip the card
+            flipToBackBtn.addEventListener('click', function() {
+                wordCard.classList.add('flipped');
+            });
+
+            flipToFrontBtn.addEventListener('click', function() {
+                wordCard.classList.remove('flipped');
+            });
+
+            // Handler for the Start Quiz button
+            startQuizBtn.addEventListener('click', function() {
+                // Send POST request to journey/next endpoint
+                fetch('/journey/next', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        word_key: '{{ word_key }}',
+                        direction: 'to_quiz'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.redirect) {
+                        // Redirect to the quiz page
+                        window.location.href = data.redirect;
+                    } else {
+                        console.error('Error navigating to quiz:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+
+            // Track that the user has studied this word
+            console.log('Word study session started for: {{ word.word }}');
+        });
+    </script>
+</body>
+</html>

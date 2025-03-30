@@ -1,0 +1,7 @@
+运行指南：
+1.cd the file location of "vocabulary_app"
+2.run python app.py at the terminal
+3.visit http://127.0.0.1:5000/
+
+ai交互内容（claude）：
+https://claude.ai/share/a2603ba4-9cda-4769-be88-d7346a0f7d0b
